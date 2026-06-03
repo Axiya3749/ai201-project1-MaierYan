@@ -88,14 +88,14 @@ Top chunks returned:
 - `[Metformin 2.txt]` "Side effects that were more commonly reported with metformin hydrochloride extended-release tablets than placebo include abdominal pain, constipation, distention abdomen, dyspepsia/heartburn, flatulence, dizziness, headache, and upper respiratory infection."
 - `[Metformin 1.txt]` "Serious side effects of metformin include chest pain. Call your doctor immediately if you experience this."
 
-Why these chunks are relevant: The query asked for side effects, and the top chunks come from both metformin source files and cover common GI effects, extended-release specific effects, and serious effects. The retrieval correctly pulled from multiple documents to give a more complete answer.
+Why these chunks are relevant: The query asked for side effects and the top chunks come from both metformin source files covering common GI effects, extended-release specific effects, and serious effects. The retrieval correctly pulled from multiple documents to give a more complete answer.
 
 **Query 3: "How should a nurse assess pain in a non-verbal patient?"**
 
 Top chunks returned:
 - `[Pain 1.txt]` "For patients unable to self-report, clinicians use observational tools. These include the Nonverbal Pain Scale, Behavioral Pain Scale, and DOLOPLUS2."
-- `[Pain 1.txt]` "Behavioral indicators include facial expressions, upper limb movements, fussiness, consolability, and compliance with ventilation or motor control."
 - `[Pain 2.txt]` "Physiologic indicators such as heart rate variability, oxygen saturation, and skin perfusion can contribute to pain assessment but should not be used in isolation."
+- `[Pain 1.txt]` "Behavioral indicators include facial expressions, upper limb movements, fussiness, consolability, and compliance with ventilation or motor control."
 
 ---
 
@@ -120,23 +120,25 @@ Before sending chunks to the LLM, I filter out any chunk with a cosine distance 
 
 Query: *What are the side effects of metformin?*
 
-> According to Metformin 1.txt, the side effects of metformin include: diarrhea, nausea, stomach discomfort, gas, indigestion, constipation, lack of energy or weakness, change in sense of taste, headache, flushing of the skin, nail changes, muscle pain, rash. Additionally, according to Metformin 2.txt, other side effects that were more commonly reported with metformin hydrochloride extended-release tablets than placebo include: abdominal pain, constipation, distention abdomen, dyspepsia/heartburn, flatulence, dizziness, headache, upper respiratory infection, taste disturbance. Also, according to Metformin 2.txt, metformin may cause serious side effects such as cholestatic, hepatocellular, and mixed hepatocellular liver injury, and according to Metformin 1.txt, chest pain.
+> According to Metformin 1.txt, the side effects of metformin include: diarrhea, nausea, stomach discomfort, gas, indigestion, constipation, lack of energy or weakness, change in sense of taste, headache, flushing of the skin, nail changes, muscle pain, rash. Additionally, according to Metformin 2.txt, other side effects include abdominal pain, constipation, dyspepsia/heartburn, flatulence, dizziness, headache, upper respiratory infection, taste disturbance. Serious side effects include cholestatic liver injury and chest pain.
 
-Sources shown: Metformin 1.txt, Metformin 2.txt
+Retrieved from: Metformin 1.txt, Metformin 2.txt
 
 **Response 2 — Osteoporosis symptoms (source attribution visible)**
 
 Query: *What are the signs and symptoms of osteoporosis?*
 
-> According to Osteoporosis 1.txt, the symptoms of Osteoporosis include severe back pain, loss of height, or spine malformations such as a stooped or hunched posture (kyphosis) when a vertebral (spine) fracture occurs. Additionally, it is mentioned that Osteoporosis is called a "silent" disease because there are typically no symptoms until a bone is broken.
+> According to Osteoporosis 1.txt, the symptoms of Osteoporosis include severe back pain, loss of height, or spine malformations such as a stooped or hunched posture (kyphosis) when a vertebral fracture occurs. Additionally, according to Osteoporosis 2.txt, you may not even know you have the disease until you break a bone, as osteoporosis is called a "silent" disease because it doesn't usually cause symptoms.
 
-Sources shown: Osteoporosis 1.txt
+Retrieved from: Osteoporosis 1.txt, Osteoporosis 2.txt
 
 **Response 3 — Out-of-scope query (refusal response)**
 
 Query: *What is the capital of France?*
 
 > I don't have enough information in the loaded documents to answer that question.
+
+Retrieved from: (empty)
 
 This shows the grounding is working. The system correctly refused to answer a question outside its document set rather than pulling from the LLM's training data.
 
@@ -156,8 +158,8 @@ Answer box returns:
 > According to Pain 1.txt, observational pain assessment tools are suitable for patients who are unable to self-report their pain, and clinicians assess facial expressions. Additionally, physiologic indicators such as heart rate variability, oxygen saturation, and skin perfusion can contribute to pain assessment, but none should be used in isolation, and a holistic approach is recommended.
 
 Retrieved from box shows:
-> • Pain 1.txt
 > • Pain 2.txt
+> • Pain 1.txt
 
 ---
 
@@ -165,11 +167,11 @@ Retrieved from box shows:
 
 | # | Question | Expected answer | System response (summarized) | Retrieval quality | Response accuracy |
 |---|----------|-----------------|------------------------------|-------------------|-------------------|
-| 1 | What are the signs and symptoms of osteoporosis? | Silent disease, no symptoms until a bone breaks; vertebral fracture causes back pain, height loss, kyphosis | Correctly said osteoporosis is a "silent" disease, cited Osteoporosis 1.txt, and described back pain, height loss, and stooped posture from vertebral fractures | Relevant | Accurate |
-| 2 | What is the proper handwashing technique? | Wet hands, apply soap, scrub for 20 seconds including backs and between fingers, rinse, dry; use 60% alcohol sanitizer if no soap | Cited Handwash 2.txt and mentioned singing "Happy Birthday" twice for timing, but said "a more detailed step-by-step guide is not provided" even though the full CDC steps were in Handwash 1.txt | Partially relevant | Partially accurate |
-| 3 | When should a nurse escalate a patient's condition? | Abnormal vital signs, unexpected deterioration, signs of cardiorespiratory arrest; activate rapid response early | Cited Nurse 2.txt and mentioned Early Warning Systems (EWS) protocols, but said exact escalation thresholds were "not explicitly stated in the provided text" | Partially relevant | Partially accurate |
+| 1 | What are the signs and symptoms of osteoporosis? | Silent disease, no symptoms until a bone breaks; vertebral fracture causes back pain, height loss, kyphosis | Correctly described osteoporosis as a silent disease, cited both Osteoporosis 1.txt and 2.txt, covered back pain, height loss, and kyphosis from vertebral fractures | Relevant | Accurate |
+| 2 | What is the proper handwashing technique? | Wet hands, apply soap, scrub for 20 seconds including backs and between fingers, rinse, dry; use 60% alcohol sanitizer if no soap | Cited Handwash 1.txt and correctly listed scrubbing for 20 seconds, lathering backs and between fingers, rinsing under clean running water, and drying with a towel or air dryer | Relevant | Accurate |
+| 3 | When should a nurse escalate a patient's condition? | Abnormal vital signs, unexpected deterioration, signs of cardiorespiratory arrest; activate rapid response early | Cited Nurse 2.txt and mentioned Early Warning Systems protocols, but said "the specific criteria or thresholds for escalation are not explicitly stated in the provided text" | Partially relevant | Partially accurate |
 | 4 | What are the side effects of metformin? | Diarrhea, nausea, stomach issues, fatigue, headache, nail changes, muscle pain, rash; chest pain is serious | Cited both Metformin 1.txt and 2.txt, listed GI side effects, taste disturbance, dizziness, liver injury, and chest pain | Relevant | Accurate |
-| 5 | How should a nurse assess pain in a non-verbal patient? | Use NVPS, BPS, or DOLOPLUS2; observe facial expressions and movement; use physiologic indicators as supplement only | Cited Pain 1.txt, mentioned observational tools, facial expressions, and correctly said physiologic indicators like heart rate variability should supplement but not replace behavioral tools | Relevant | Accurate |
+| 5 | How should a nurse assess pain in a non-verbal patient? | Use NVPS, BPS, or DOLOPLUS2; observe facial expressions and movement; use physiologic indicators as supplement only | Cited both Pain 1.txt and Pain 2.txt, mentioned observational tools, facial expressions, and correctly noted physiologic indicators should supplement but not replace behavioral assessment | Relevant | Accurate |
 
 **Retrieval quality:** Relevant / Partially relevant / Off-target
 **Response accuracy:** Accurate / Partially accurate / Inaccurate
@@ -178,16 +180,16 @@ Retrieved from box shows:
 
 ## Failure Case Analysis
 
-**Question that failed:** *What is the proper handwashing technique?*
+**Question that failed:** *When should a nurse escalate a patient's condition?*
 
 **What the system returned:**
-The system cited Handwash 2.txt and mentioned the "Happy Birthday" song as a timing trick, plus rinsing and drying with a paper towel. Then it said "a more detailed, step-by-step guide is not provided in the given documents." That's wrong. The full CDC step-by-step technique is in Handwash 1.txt, but the system never retrieved it.
+The system cited Nurse 2.txt and mentioned Early Warning Systems (EWS) protocols for detecting acute deterioration, but then said "the specific criteria or thresholds for escalation are not explicitly stated in the provided text." The actual escalation criteria — abnormal vital signs, signs of cardiorespiratory arrest, and the guidance to activate rapid response early — exist across both Nurse 1.txt and Nurse 2.txt, but the system couldn't pull them together.
 
 **Root cause (tied to a specific pipeline stage):**
-This is a chunking problem that caused a retrieval failure. The CDC steps in Handwash 1.txt are written as a numbered list: wet hands, apply soap, lather, scrub for 20 seconds, rinse, dry. With a 300 character chunk size, each step got split into its own chunk. Each individual chunk was too short and lacked enough context to score well against the full query "what is the proper handwashing technique." Meanwhile, the WHO source (Handwash 2.txt) had a more complete-sounding sentence about the "Happy Birthday" timing trick, so that chunk ranked higher. The model got the WHO chunk but not the CDC steps, and honestly reported that a complete guide wasn't in the text it received.
+This is a retrieval failure caused by how the source documents are written. The Nurse source files are research-heavy documents that discuss escalation systems at a conceptual level rather than listing clear step-by-step criteria. When the query "when should a nurse escalate" was embedded, it matched chunks about EWS frameworks and barriers to escalation rather than specific trigger thresholds. The relevant criteria are scattered across multiple chunks in both files, and with top-k=5, the retrieved chunks didn't happen to include the specific threshold language. The model correctly reported that the thresholds weren't in what it received.
 
 **What you would change to fix it:**
-I would increase the chunk size to around 500 characters so numbered list steps stay together in one chunk instead of being split up. I'd also consider adding metadata filters so a query that mentions "CDC" retrieves from Handwash 1.txt specifically, regardless of which source scores higher on semantic similarity.
+I would rewrite or supplement the Nurse source documents with more direct clinical language — for example, a plain-language list of escalation triggers. I would also consider increasing top-k specifically for multi-document topics, or adding a re-ranking step that scores chunks by how directly they answer the question rather than just semantic similarity.
 
 ---
 
@@ -219,7 +221,7 @@ The spec said top-k of 3 to 5 chunks, but I ended up setting `N_RESULTS = 5` in 
 
 - *What I gave the AI:* All five source code files and the README template, and asked Claude to write the full Milestone 6 README based on the actual code.
 - *What it produced:* A complete README draft with all required sections filled in.
-- *What I changed or overrode:* The draft said `N_RESULTS = 6` which was wrong. My code uses 5. I caught it and had Claude fix it. I also ran all 5 test questions in the app and sent screenshots of the real responses so the evaluation table could reflect what the system actually returned, not what was predicted. That changed Q2 (handwashing) from accurate to partially accurate and made it the main failure case.
+- *What I changed or overrode:* The draft had several inaccuracies I caught by testing the actual system. I ran all 5 queries in the app and sent screenshots of the real responses. This changed the evaluation table significantly — handwashing turned out to be accurate (not a failure), and escalation became the real failure case. I also caught that the draft said N_RESULTS=6 when my code uses 5.
 
 ---
 
@@ -234,19 +236,19 @@ I tested two chunking strategies on the same 5 evaluation queries to see which p
 **Results by query:**
 
 **Query 1: What are the signs and symptoms of osteoporosis?**
-The 300-char strategy retrieved a chunk directly containing "Osteoporosis is called a silent disease" (score 0.618) from Osteoporosis 1.txt. The 600-char strategy returned a higher overall score (0.688) but the top chunk was about risk factors like rheumatoid arthritis and cancer, not symptoms. The 300-char strategy performed better here because the symptoms section was self-contained in a short passage.
+The 300-char strategy retrieved a chunk directly containing the "silent disease" description (score 0.618) from Osteoporosis 1.txt. The 600-char strategy returned a higher overall score (0.688) but the top chunk was about risk factors like rheumatoid arthritis, not symptoms. The 300-char strategy performed better here because the symptoms section was self-contained in a short passage.
 
 **Query 2: What is the proper handwashing technique?**
-This was the most interesting result. The 300-char strategy retrieved 3 chunks all from Handwash 1.txt (CDC), including one about drying hands and one about sanitizer. The 600-char strategy's top result was from Handwash 2.txt (WHO) with a score of 0.637. Neither strategy fully solved the handwashing failure — the CDC step-by-step technique was still split across multiple chunks in both cases. This suggests the fix would require sentence-aware chunking rather than just increasing chunk size.
+The 300-char strategy retrieved 3 chunks all from Handwash 1.txt (CDC), including steps about drying and sanitizer use. The 600-char strategy's top result was from Handwash 2.txt (WHO) with a score of 0.637. The 300-char strategy performed better here by staying focused on the CDC source.
 
 **Query 3: When should a nurse escalate a patient's condition?**
-Both strategies struggled here, with low scores (300-char top score: 0.521, 600-char top score: 0.563). The escalation criteria are spread across research-heavy documents that don't match the plain-language query well. The 600-char strategy scored slightly higher but neither returned clearly relevant results.
+Both strategies struggled, with low scores overall (300-char top: 0.521, 600-char top: 0.563). The escalation criteria are spread across research-heavy documents that don't match the plain-language query well. Neither strategy solved this retrieval gap.
 
 **Query 4: What are the side effects of metformin?**
-Both strategies performed well. The 300-char strategy's top chunk scored 0.750 and contained the actual side effect list. The 600-char strategy scored 0.757 on its top chunk. Results were nearly identical and both produced accurate answers.
+Both strategies performed well with nearly identical top scores (300-char: 0.750, 600-char: 0.757). Both produced accurate answers.
 
 **Query 5: How should a nurse assess pain in a non-verbal patient?**
-The 300-char strategy retrieved 3 chunks all from Pain 2.txt. The 600-char strategy retrieved from both Pain 1.txt and Pain 2.txt, giving the model more diverse context. The 600-char strategy performed slightly better here because the longer chunks kept related sentences about assessment tools together.
+The 600-char strategy retrieved from both Pain 1.txt and Pain 2.txt, giving the model more diverse context. The 300-char strategy pulled only from Pain 2.txt in the top results. The 600-char strategy performed slightly better here because longer chunks kept related assessment tool descriptions together.
 
 **Overall conclusion:**
-Neither strategy was clearly better across all queries. The 300-char strategy performed better on osteoporosis and metformin where the relevant information was concentrated in short passages. The 600-char strategy performed slightly better on pain assessment where context needed to stay together. For the handwashing failure case, the real fix is not chunk size but chunk boundary awareness — a sentence-aware splitter would keep numbered list steps together regardless of character count.
+Neither strategy was clearly better across all queries. The 300-char strategy performed better on osteoporosis and handwashing where relevant information was concentrated in short passages. The 600-char strategy performed slightly better on pain assessment where context needed to stay together. For the escalation failure case, neither chunk size solved the problem — the root cause is that the source documents use research language rather than plain clinical criteria, which no chunking strategy can fix without better source documents.
