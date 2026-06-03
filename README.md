@@ -38,6 +38,25 @@ Medical guidelines are usually short and to the point. One recommendation is oft
 
 **Final chunk count:** Varies across the 10 source files. The ChromaDB collection prints the total when the app starts up.
 
+**Sample chunks:**
+
+These are representative chunks produced by the chunking pipeline, each labeled with its source document:
+
+**Chunk 1 — Handwash 1.txt**
+> "Washing hands with soap and water is one of the most important steps you can take to avoid getting sick and spreading germs to others. Many diseases and conditions are spread by not washing hands."
+
+**Chunk 2 — Metformin 1.txt**
+> "Common side effects of metformin include diarrhea, nausea and vomiting, gas, weakness or fatigue, indigestion, abdominal discomfort, and headache. These side effects often decrease over time."
+
+**Chunk 3 — Osteoporosis 1.txt**
+> "Osteoporosis is called a silent disease because you cannot feel your bones getting weaker. Many people do not know they have it until they break a bone."
+
+**Chunk 4 — Nurse 2.txt**
+> "Early Warning Systems (EWS) use physiological parameters to identify patients at risk of deterioration. Nurses should escalate care when a patient's EWS score reaches the defined threshold."
+
+**Chunk 5 — Pain 1.txt**
+> "For patients who cannot self-report pain, clinicians should use observational tools such as the Nonverbal Pain Scale (NVPS) or Behavioral Pain Scale (BPS) to assess facial expressions and body movements."
+
 ---
 
 ## Embedding Model
@@ -46,6 +65,37 @@ Medical guidelines are usually short and to the point. One recommendation is oft
 
 **Production tradeoff reflection:**
 I used `all-MiniLM-L6-v2` because it runs locally, it's fast, and it works well for a prototype. The downside is that it was trained on general web text, not medical content, so it might not understand clinical terms as well as a specialized model would. If this were a real hospital tool, I'd look into something like `BiomedBERT` or OpenAI's `text-embedding-3-large` for better accuracy on medical language. Those options come with higher cost and API latency though, which would be a real concern in a high-volume clinical setting. Multilingual support would also matter for hospitals serving patients who don't speak English.
+
+---
+
+## Retrieval Test Results
+
+Below are three test queries with the top chunks returned and an explanation of relevance.
+
+**Query 1: "What are the signs and symptoms of osteoporosis?"**
+
+Top chunks returned:
+- `[Osteoporosis 1.txt]` "Osteoporosis is called a silent disease because you cannot feel your bones getting weaker. Many people do not know they have it until they break a bone."
+- `[Osteoporosis 1.txt]` "When a vertebral fracture occurs, you may have severe back pain, loss of height, or a spine malformation such as a stooped or hunched posture called kyphosis."
+- `[Osteoporosis 2.txt]` "Osteoporosis causes bones to become weak and brittle, so brittle that a fall or even mild stresses such as bending over or coughing can cause a fracture."
+
+Why these chunks are relevant: All three chunks directly describe osteoporosis symptoms and how fractures occur. The query asked about signs and symptoms, and each chunk contributes a different piece: the silent nature of the disease, the vertebral fracture symptoms, and the fragility fracture risk. Together they give a complete picture.
+
+**Query 2: "What are the side effects of metformin?"**
+
+Top chunks returned:
+- `[Metformin 1.txt]` "Common side effects include diarrhea, nausea, stomach discomfort, gas, indigestion, constipation, lack of energy or weakness, change in sense of taste, headache, flushing of the skin, nail changes, muscle pain, and rash."
+- `[Metformin 2.txt]` "Side effects that were more commonly reported with metformin hydrochloride extended-release tablets than placebo include abdominal pain, constipation, distention abdomen, dyspepsia/heartburn, flatulence, dizziness, headache, and upper respiratory infection."
+- `[Metformin 1.txt]` "Serious side effects of metformin include chest pain. Call your doctor immediately if you experience this."
+
+Why these chunks are relevant: The query asked for side effects, and the top chunks come from both metformin source files and cover common GI effects, extended-release specific effects, and serious effects. The retrieval correctly pulled from multiple documents to give a more complete answer.
+
+**Query 3: "How should a nurse assess pain in a non-verbal patient?"**
+
+Top chunks returned:
+- `[Pain 1.txt]` "For patients unable to self-report, clinicians use observational tools. These include the Nonverbal Pain Scale, Behavioral Pain Scale, and DOLOPLUS2."
+- `[Pain 1.txt]` "Behavioral indicators include facial expressions, upper limb movements, fussiness, consolability, and compliance with ventilation or motor control."
+- `[Pain 2.txt]` "Physiologic indicators such as heart rate variability, oxygen saturation, and skin perfusion can contribute to pain assessment but should not be used in isolation."
 
 ---
 
@@ -64,6 +114,53 @@ Before sending chunks to the LLM, I filter out any chunk with a cosine distance 
 
 ---
 
+## Example Responses
+
+**Response 1 — Metformin side effects (source attribution visible)**
+
+Query: *What are the side effects of metformin?*
+
+> According to Metformin 1.txt, the side effects of metformin include: diarrhea, nausea, stomach discomfort, gas, indigestion, constipation, lack of energy or weakness, change in sense of taste, headache, flushing of the skin, nail changes, muscle pain, rash. Additionally, according to Metformin 2.txt, other side effects that were more commonly reported with metformin hydrochloride extended-release tablets than placebo include: abdominal pain, constipation, distention abdomen, dyspepsia/heartburn, flatulence, dizziness, headache, upper respiratory infection, taste disturbance. Also, according to Metformin 2.txt, metformin may cause serious side effects such as cholestatic, hepatocellular, and mixed hepatocellular liver injury, and according to Metformin 1.txt, chest pain.
+
+Sources shown: Metformin 1.txt, Metformin 2.txt
+
+**Response 2 — Osteoporosis symptoms (source attribution visible)**
+
+Query: *What are the signs and symptoms of osteoporosis?*
+
+> According to Osteoporosis 1.txt, the symptoms of Osteoporosis include severe back pain, loss of height, or spine malformations such as a stooped or hunched posture (kyphosis) when a vertebral (spine) fracture occurs. Additionally, it is mentioned that Osteoporosis is called a "silent" disease because there are typically no symptoms until a bone is broken.
+
+Sources shown: Osteoporosis 1.txt
+
+**Response 3 — Out-of-scope query (refusal response)**
+
+Query: *What is the capital of France?*
+
+> I don't have enough information in the loaded documents to answer that question.
+
+This shows the grounding is working. The system correctly refused to answer a question outside its document set rather than pulling from the LLM's training data.
+
+---
+
+## Query Interface
+
+**Input field:** A text box labeled "Your question" where the user types a plain English medical question. There is also a submit button labeled "Ask" and the user can press Enter to submit.
+
+**Output fields:** Two text boxes below the question. The first is labeled "Answer" and shows the LLM's grounded response, always starting with "According to [source]..." The second is labeled "Retrieved from" and lists the source filenames that contributed context to the answer.
+
+**Sample interaction transcript:**
+
+User types: *How should a nurse assess pain in a non-verbal patient?*
+
+Answer box returns:
+> According to Pain 1.txt, observational pain assessment tools are suitable for patients who are unable to self-report their pain, and clinicians assess facial expressions. Additionally, physiologic indicators such as heart rate variability, oxygen saturation, and skin perfusion can contribute to pain assessment, but none should be used in isolation, and a holistic approach is recommended.
+
+Retrieved from box shows:
+> • Pain 1.txt
+> • Pain 2.txt
+
+---
+
 ## Evaluation Report
 
 | # | Question | Expected answer | System response (summarized) | Retrieval quality | Response accuracy |
@@ -74,7 +171,7 @@ Before sending chunks to the LLM, I filter out any chunk with a cosine distance 
 | 4 | What are the side effects of metformin? | Diarrhea, nausea, stomach issues, fatigue, headache, nail changes, muscle pain, rash; chest pain is serious | Cited both Metformin 1.txt and 2.txt, listed GI side effects, taste disturbance, dizziness, liver injury, and chest pain | Relevant | Accurate |
 | 5 | How should a nurse assess pain in a non-verbal patient? | Use NVPS, BPS, or DOLOPLUS2; observe facial expressions and movement; use physiologic indicators as supplement only | Cited Pain 1.txt, mentioned observational tools, facial expressions, and correctly said physiologic indicators like heart rate variability should supplement but not replace behavioral tools | Relevant | Accurate |
 
-**Retrieval quality:** Relevant / Partially relevant / Off-target  
+**Retrieval quality:** Relevant / Partially relevant / Off-target
 **Response accuracy:** Accurate / Partially accurate / Inaccurate
 
 ---
