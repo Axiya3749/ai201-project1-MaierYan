@@ -1,0 +1,8 @@
+Title: Pain Assessment
+Source: StatPearls, NCBI Bookshelf (National Library of Medicine, NIH)
+URL: https://www.ncbi.nlm.nih.gov/books/NBK556098/
+
+The Nonverbal Pain Scale is particularly useful in intensive care units to assess pain in nonverbal adults, such as intubated but not fully sedated patients.
+The Behavioral Pain Scale offers an observational method for assessing pain in patients who are sedated or unconscious. This tool evaluates facial expressions, upper limb movements, and compliance with mechanical ventilation. Effective use requires considerable experience and interpretation within the clinical context, including the interpretation of vital signs.
+Observational pain assessment tools are suitable for patients who are unable to self-report their pain. Clinicians assess facial expressions, fussiness, distractibility, consolability, verbal responsiveness, and motor control. In geriatric individuals, the Geriatric Pain Measure provides a 24-item questionnaire that addresses pain intensity, functional status, mood, and health service utilization over the preceding week. Tools such as the Pain Assessment in Advanced Dementia, the Pain Assessment Checklist for Seniors with Limited Ability to Communicate, and the DOLOPLUS2 support pain recognition and management in these patients.
+Physiologic indicators can contribute to pain assessment. Examples include heart rate variability, oxygen saturation, and skin perfusion. These indicators vary in sensitivity and specificity. None should be used in isolation. A holistic approach, incorporating multiple data points and tools, provides more accurate assessments.

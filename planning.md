@@ -9,7 +9,8 @@
 
 ## Domain
 
-<!-- What domain did you choose? Why is this knowledge valuable and hard to find through official channels? -->
+This system makes clinical medical knowledge searchable for nurses and healthcare practitioners. Official guidelines from CDC, NIH, and ANA are comprehensive but long — finding a specific answer mid-shift requires skimming through multiple pages. This system allows practitioners to ask plain-language 
+questions and get grounded, cited answers instantly.
 
 ---
 
@@ -20,16 +21,16 @@
 
 | # | Source | Description | URL or location |
 |---|--------|-------------|-----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
-| 9 | | | |
-| 10 | | | |
+| 1 | CDC | Handwashing guidelines | cdc.gov | Handwash 1.txt
+| 2 | WHO | Handwashing technique  | who.int | Handwash 2.txt
+| 3 | MedlinePlus | Metformin side effects | medlineplus.gov | Metformin 1.txt
+| 4 | NIH | Metformin usage | nih.gov | Metformin 2.txt
+| 5 | ANA | Nurse escalation protocol | nursingworld.org | Nurse 1.txt
+| 6 | NIH | When to escalate care | nih.gov | Nurse 2.txt
+| 7 | NIAMS | Osteoporosis overview | niams.nih.gov | Osteoporosis 1.txt
+| 8 | NIH | Osteoporosis symptoms | nih.gov | Osteoporosis 2.txt
+| 9 | ANA | Pain assessment non-verbal | nursingworld.org | Pain 1.txt
+| 10 | NIH | Pain scales and tools | nih.gov | Pain 2.txt
 
 ---
 
@@ -40,11 +41,11 @@
      numbers fit the structure of your documents.
      A review-heavy corpus warrants different chunking than a long FAQ. -->
 
-**Chunk size:**
+**Chunk size: 300 characters**
 
-**Overlap:**
+**Overlap: 50 characters**
 
-**Reasoning:**
+**Reasoning: Medical guidelines pack a lot of meaning into short passages — one guideline is often 1-3 sentences. 300 characters captures one complete clinical guideline without merging unrelated topics.**
 
 ---
 
@@ -56,11 +57,12 @@
      would you weigh in choosing a different embedding model — context length, multilingual
      support, accuracy on domain-specific text, latency? -->
 
-**Embedding model:**
+**Embedding model: all-MiniLM-L6-v2 via sentence-transformers**
 
-**Top-k:**
+**Top-k: 3-5 chunks**
 
-**Production tradeoff reflection:**
+**Production tradeoff reflection: For a production medical system I would consider a larger model like text-embedding-3-large for higher accuracy on clinical text, multilingual support for non-English speaking patients, and 
+longer context length to capture complex guidelines. However these come with higher cost and API latency.**
 
 ---
 
@@ -73,12 +75,17 @@
 
 | # | Question | Expected answer |
 |---|----------|-----------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
-
+1 | What are the signs and symptoms of osteoporosis? | Osteoporosis is a silent disease with no symptoms until a bone breaks. Symptoms of vertebral fracture include severe back pain, loss of height, and stooped posture (kyphosis). Bones may become so fragile that fractures occur from minor falls, bending, 
+lifting, or even coughing.
+2 | What is the proper handwashing technique? | WWet hands with clean running water, apply soap, lather by rubbing hands together including backs, between fingers and 
+under nails, scrub for at least 20 seconds, rinse well under clean running water, dry with a clean towel or air dryer. If soap unavailable, use hand sanitizer with at least 60% alcohol.
+3 | When should a nurse escalate a patient's condition? | A nurse should escalate when a patient shows abnormal vital signs, unexpected clinical deterioration, or premonitory signs 
+of cardiorespiratory arrest. Rapid response systems should be activated early — abnormal vital signs can precede critical deterioration by hours. Early recognition and escalation can 
+prevent cardiac arrest and reduce mortality.
+4 | What are the side effects of metformin? | Common side effects include diarrhea, nausea, stomach discomfort, gas, indigestion,constipation, lack of energy, weakness, change in taste, headache, flushing, nail changes, 
+muscle pain, and rash. Serious side effects include chest pain which requires immediate medical attention.
+5 | How should a nurse assess pain in a non-verbal patient? | Use observational tools such as the Nonverbal Pain Scale, Behavioral Pain Scale, or DOLOPLUS2. Assess facial expressions, upper limb movements, fussiness, consolability, and motor control. Physiologic indicators like heart rate variability and 
+oxygen saturation can supplement but should not be used alone. A holistic approach using multiple tools is most accurate.
 ---
 
 ## Anticipated Challenges
@@ -87,9 +94,11 @@
      Consider: noisy or inconsistent documents, missing source attribution, off-topic
      retrieval, chunks that split key information across boundaries. -->
 
-1.
+1. Chunks may cut mid-sentence splitting a complete clinical guideline across two chunks, making retrieval incomplete.
 
-2.
+2. Medical terms may not embed well with a general-purpose model — "FLACC scale" may not match "pain assessment tool" semantically.
+
+3. Documents contain heavy bullet point formatting which may get split mid-list during chunking, making individual chunks lose context (e.g. a bullet point without its header).
 
 ---
 
@@ -101,6 +110,17 @@
      You can use ASCII art, a Mermaid diagram, or embed a sketch as an image.
      You'll use this diagram as context when prompting AI tools to implement each stage. -->
 
+Document Ingestion (ingest.py)
+        ↓
+Chunking - 300 chars, 50 overlap (ingest.py)
+        ↓
+Embedding + Vector Store (retriever.py - all-MiniLM-L6-v2 + ChromaDB)
+        ↓
+Retrieval - top-k semantic search (retriever.py)
+        ↓
+Generation - grounded response (generator.py - Groq llama-3.3-70b)
+        ↓
+UI (app.py - Gradio)
 ---
 
 ## AI Tool Plan
@@ -115,8 +135,8 @@
      "I'll give Claude my Chunking Strategy section and ask it to implement chunk_text()
      with my specified chunk size and overlap" is a plan. -->
 
-**Milestone 3 — Ingestion and chunking:**
+**Milestone 3 — Ingestion and chunking: Give Claude my Chunking Strategy section and ask it to implement chunk_text() with 300 char size and 50 char overlap.**
 
-**Milestone 4 — Embedding and retrieval:**
+**Milestone 4 — Embedding and retrieval: Give Claude my Retrieval Approach section and pipeline diagram and ask it to implement embed_and_store() and retrieve() using ChromaDB and sentence-transformers.**
 
-**Milestone 5 — Generation and interface:**
+**Milestone 5 — Generation and interface: Give Claude my grounding requirements and ask it to implement generate_response() and a Gradio UI with answer and source fields.**

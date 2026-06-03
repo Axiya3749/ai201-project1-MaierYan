@@ -1,0 +1,12 @@
+Title: Metformin ER 500mg (FDA Label – Adverse Reactions)
+Source: DailyMed (National Library of Medicine / FDA)
+URL: https://dailymed.nlm.nih.gov/dailymed/fda/fdaDrugXsl.cfm?setid=88f1fd59-6906-9755-e053-2a95a90acc61
+
+There have been postmarketing cases of metformin-associated lactic acidosis, including fatal cases. These cases had a subtle onset and were accompanied by nonspecific symptoms such as malaise, myalgias, abdominal pain, respiratory distress, or increased somnolence; however, hypotension and resistant bradyarrhythmias have occurred with severe acidosis. Metformin-associated lactic acidosis was characterized by elevated blood lactate concentrations (>5 mmol/L), anion gap acidosis (without evidence of ketonuria or ketonemia), and an increased lactate: pyruvate ratio; metformin plasma levels were generally >5 mcg/mL.
+
+In placebo-controlled trials, 781 patients were administered metformin hydrochloride extended-release tablets. Adverse reactions reported in greater than 5% of the metformin hydrochloride extended-release tablets patients, and that were more common in metformin hydrochloride extended-release tablets- than placebo-treated patients, are listed below:
+Diarrhea 10% (vs placebo 3%)
+Nausea/Vomiting 7% (vs placebo 2%)
+Diarrhea led to discontinuation of metformin hydrochloride extended-release tablets in 0.6% of patients. Additionally, the following adverse reactions were reported in ≥1.0% to ≤5.0% of metformin hydrochloride extended-release tablets patients and were more commonly reported with metformin hydrochloride extended-release tablets than placebo: abdominal pain, constipation, distention abdomen, dyspepsia/heartburn, flatulence, dizziness, headache, upper respiratory infection, taste disturbance.
+
+The following adverse reactions have been identified during post approval use of metformin: Cholestatic, hepatocellular, and mixed hepatocellular liver injury.
