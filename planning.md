@@ -110,17 +110,19 @@ oxygen saturation can supplement but should not be used alone. A holistic approa
      You can use ASCII art, a Mermaid diagram, or embed a sketch as an image.
      You'll use this diagram as context when prompting AI tools to implement each stage. -->
 
-Document Ingestion (ingest.py)
+## Architecture
+
+Document Ingestion (ingest.py - loads .txt files from /documents)
         ↓
-Chunking - 300 chars, 50 overlap (ingest.py)
+Chunking (ingest.py - character-based sliding window, 300 chars, 50 overlap)
         ↓
 Embedding + Vector Store (retriever.py - all-MiniLM-L6-v2 + ChromaDB)
         ↓
-Retrieval - top-k semantic search (retriever.py)
+Retrieval (retriever.py - cosine similarity semantic search, top-k=3)
         ↓
-Generation - grounded response (generator.py - Groq llama-3.3-70b)
+Generation (generator.py - Groq llama-3.3-70b-versatile)
         ↓
-UI (app.py - Gradio)
+UI (app.py - Gradio web interface)
 ---
 
 ## AI Tool Plan
