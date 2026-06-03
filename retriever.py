@@ -5,7 +5,7 @@ from ingest import load_documents, clean_document, chunk_document
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 CHROMA_PATH = "./chroma_db"
 CHROMA_COLLECTION = "medical_guides"
-N_RESULTS = 6
+N_RESULTS = 5
 
 # Initialize embedding function and ChromaDB
 _ef = embedding_functions.SentenceTransformerEmbeddingFunction(
