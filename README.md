@@ -220,3 +220,33 @@ The spec said top-k of 3 to 5 chunks, but I ended up setting `N_RESULTS = 5` in 
 - *What I gave the AI:* All five source code files and the README template, and asked Claude to write the full Milestone 6 README based on the actual code.
 - *What it produced:* A complete README draft with all required sections filled in.
 - *What I changed or overrode:* The draft said `N_RESULTS = 6` which was wrong. My code uses 5. I caught it and had Claude fix it. I also ran all 5 test questions in the app and sent screenshots of the real responses so the evaluation table could reflect what the system actually returned, not what was predicted. That changed Q2 (handwashing) from accurate to partially accurate and made it the main failure case.
+
+---
+
+## Chunking Strategy Comparison (Stretch Feature)
+
+I tested two chunking strategies on the same 5 evaluation queries to see which performed better: my original 300-character chunks vs 600-character chunks. Both used 50-character overlap and the same `all-MiniLM-L6-v2` embedding model.
+
+**Chunk counts:**
+- 300-char strategy: 178 total chunks
+- 600-char strategy: 83 total chunks
+
+**Results by query:**
+
+**Query 1: What are the signs and symptoms of osteoporosis?**
+The 300-char strategy retrieved a chunk directly containing "Osteoporosis is called a silent disease" (score 0.618) from Osteoporosis 1.txt. The 600-char strategy returned a higher overall score (0.688) but the top chunk was about risk factors like rheumatoid arthritis and cancer, not symptoms. The 300-char strategy performed better here because the symptoms section was self-contained in a short passage.
+
+**Query 2: What is the proper handwashing technique?**
+This was the most interesting result. The 300-char strategy retrieved 3 chunks all from Handwash 1.txt (CDC), including one about drying hands and one about sanitizer. The 600-char strategy's top result was from Handwash 2.txt (WHO) with a score of 0.637. Neither strategy fully solved the handwashing failure — the CDC step-by-step technique was still split across multiple chunks in both cases. This suggests the fix would require sentence-aware chunking rather than just increasing chunk size.
+
+**Query 3: When should a nurse escalate a patient's condition?**
+Both strategies struggled here, with low scores (300-char top score: 0.521, 600-char top score: 0.563). The escalation criteria are spread across research-heavy documents that don't match the plain-language query well. The 600-char strategy scored slightly higher but neither returned clearly relevant results.
+
+**Query 4: What are the side effects of metformin?**
+Both strategies performed well. The 300-char strategy's top chunk scored 0.750 and contained the actual side effect list. The 600-char strategy scored 0.757 on its top chunk. Results were nearly identical and both produced accurate answers.
+
+**Query 5: How should a nurse assess pain in a non-verbal patient?**
+The 300-char strategy retrieved 3 chunks all from Pain 2.txt. The 600-char strategy retrieved from both Pain 1.txt and Pain 2.txt, giving the model more diverse context. The 600-char strategy performed slightly better here because the longer chunks kept related sentences about assessment tools together.
+
+**Overall conclusion:**
+Neither strategy was clearly better across all queries. The 300-char strategy performed better on osteoporosis and metformin where the relevant information was concentrated in short passages. The 600-char strategy performed slightly better on pain assessment where context needed to stay together. For the handwashing failure case, the real fix is not chunk size but chunk boundary awareness — a sentence-aware splitter would keep numbered list steps together regardless of character count.

@@ -142,3 +142,6 @@ UI (app.py - Gradio web interface)
 **Milestone 4 — Embedding and retrieval: Give Claude my Retrieval Approach section and pipeline diagram and ask it to implement embed_and_store() and retrieve() using ChromaDB and sentence-transformers.**
 
 **Milestone 5 — Generation and interface: Give Claude my grounding requirements and ask it to implement generate_response() and a Gradio UI with answer and source fields.**
+
+## Stretch Feature: Chunking Strategy Comparison
+Tested 300-char vs 600-char chunking on the same 5 evaluation queries to compare retrieval quality.
